@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}BrainFlip — My Decks{% endblock %}
+
+{% block content %}
+    <section class="hero">
+        <h1 class="hero-title">Flip to learn.</h1>
+        <p class="hero-subtitle">
+            Turn any topic into flashcards and master it, one flip at a time.
+            Create a deck, add your questions, and study whenever you're ready.
+        </p>
+    </section>
+
+    <div class="page-header">
+        <h2 class="section-title">My Decks</h2>
+        <a class="btn btn-primary" href="{{ url_for('new_deck') }}">+ New Deck</a>
+    </div>
+
+    {% if decks %}
+        <div class="deck-grid">
+            {% for deck in decks %}
+                <div class="deck-tile">
+                    <a href="{{ url_for('view_deck', deck_id=deck.id) }}" class="deck-link">
+                        <h3>{{ deck.name }}</h3>
+                        <p>{{ deck.card_count }} card{{ 's' if deck.card_count != 1 else '' }}</p>
+                    </a>
+                    <form method="POST" action="{{ url_for('delete_deck', deck_id=deck.id) }}"
+                          onsubmit="return confirmDelete(this, 'Delete this deck and all its cards?');">
+                        <button type="submit" class="btn btn-danger">Delete Deck</button>
+                    </form>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="empty-state">No decks yet. Create your first one and start flipping!</p>
+    {% endif %}
+{% endblock %}
