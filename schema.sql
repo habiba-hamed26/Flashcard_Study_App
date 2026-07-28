@@ -8,5 +8,5 @@ CREATE TABLE cards (
     deck_id INTEGER NOT NULL,
     question TEXT NOT NULL,
     answer TEXT NOT NULL,
-    FOREIGN KEY (deck_id) REFERENCES decks(id)
+    FOREIGN KEY (deck_id) REFERENCES decks(id) ON DELETE CASCADE
 );
