@@ -82,3 +82,12 @@ def view_deck(deck_id):
     cards = conn.execute("SELECT * FROM cards WHERE deck_id = ? ORDER BY id", (deck_id,) ).fetchall()
     conn.close()
     return render_template("deck.html", deck=deck, cards=cards)
+
+# Route to delete a specific deck 
+@app.route("/deck/<int:deck_id>/delete", methods=["POST"])
+def delete_deck(deck_id):
+    conn = get_db_connection()
+    conn.execute("DELETE FROM decks WHERE id = ?", (deck_id,))  # Delete the deck from the database by its ID
+    conn.commit()
+    conn.close()
+    return redirect(url_for("index"))   # Redirect to the home page
