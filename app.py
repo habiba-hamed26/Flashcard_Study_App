@@ -91,3 +91,49 @@ def delete_deck(deck_id):
     conn.commit()
     conn.close()
     return redirect(url_for("index"))   # Redirect to the home page
+
+# Card routes
+ # route to add a new card to a specific deck
+@app.route("/deck/<int:deck_id>/add", methods=["GET", "POST"])
+def add_card(deck_id):
+    conn = get_db_connection()
+    deck = conn.execute("SELECT * FROM decks WHERE id = ?", (deck_id,)).fetchone()
+    if deck is None:
+        conn.close()
+        abort(404)
+ 
+    if request.method == "POST":
+        questions = request.form.getlist("questions[]")
+        answers = request.form.getlist("answers[]")
+        added = insert_cards(conn, deck_id, questions, answers)
+        conn.commit()
+        conn.close()
+ 
+        if added:
+            flash(f"{added} card{'s' if added != 1 else ''} added!")
+        else:
+            flash("No cards added — fill in at least one question and answer.")
+        return redirect(url_for("view_deck", deck_id=deck_id))
+ 
+    conn.close()
+    return render_template("add_card.html", deck=deck)
+ 
+
+ # route to delete a card from a deck
+@app.route("/card/<int:card_id>/delete", methods=["POST"])
+def delete_card(card_id):
+    conn = get_db_connection()
+    card = conn.execute("SELECT deck_id FROM cards WHERE id = ?", (card_id,)).fetchone() # get the card with the specified id
+    if card is None:
+        conn.close()
+        abort(404)
+    deck_id = card["deck_id"] # get the deck id of the card to redirect back to the deck view after deletion
+    conn.execute("DELETE FROM cards WHERE id = ?", (card_id,)) # delete the card from the database by its ID
+    conn.commit()
+    conn.close()
+    return redirect(url_for("view_deck", deck_id=deck_id))
+ 
+ 
+if __name__ == "__main__":
+    app.run(debug=True)
+ 
