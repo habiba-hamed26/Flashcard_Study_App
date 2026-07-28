@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}BrainFlip{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header class="site-header">
+        <a href="{{ url_for('index') }}" class="logo">
+            <span class="logo-icon">🧠</span>
+            <span class="logo-text">BrainFlip</span>
+        </a>
+    </header>
+
+    <main class="container">
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for message in messages %}
+                        <div class="flash">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+
+    <div id="confirm-overlay" class="confirm-overlay" hidden>
+        <div class="confirm-box">
+            <p id="confirm-message"></p>
+            <div class="confirm-actions">
+                <button type="button" class="btn btn-secondary" onclick="cancelConfirm()">Cancel</button>
+                <button type="button" class="btn btn-danger" onclick="acceptConfirm()">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let pendingForm = null;
+
+        function confirmDelete(form, message) {
+            pendingForm = form;
+            document.getElementById('confirm-message').textContent = message;
+            document.getElementById('confirm-overlay').hidden = false;
+            return false; // stop the form from submitting immediately
+        }
+
+        function cancelConfirm() {
+            pendingForm = null;
+            document.getElementById('confirm-overlay').hidden = true;
+        }
+
+        function acceptConfirm() {
+            document.getElementById('confirm-overlay').hidden = true;
+            if (pendingForm) pendingForm.submit();
+        }
+    </script>
+</body>
+</html>
