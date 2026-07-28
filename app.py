@@ -27,19 +27,45 @@ def index():
     conn.close()
     return render_template("index.html", decks=decks)
 
-# Route to create a new deck
+
+def insert_cards(conn, deck_id, questions, answers):
+    #Insert every non empty pair. returns total added.
+    added = 0
+    for question, answer in zip(questions, answers):
+        question = question.strip()
+        answer = answer.strip()
+        if question and answer:     #  insert into DB only if both question and answer contain text
+            conn.execute("INSERT INTO cards (deck_id, question, answer) VALUES (?, ?, ?)",(deck_id, question, answer),)
+            added += 1
+    return added
+
+# route to create a new deck
 @app.route("/deck/new", methods=["GET", "POST"])
 def new_deck():
-    if request.method == "POST":   # 
-        name = request.form.get("name", "").strip()     # get the deck name 
-        if name:
-            conn = get_db_connection()
-            conn.execute("INSERT INTO decks (name) VALUES (?)", (name,))  # insert the new deck into the database
-            conn.commit()
-            flash(f"Deck '{name}' created successfully!", "success")
-            conn.close()
-        return redirect(url_for("index"))
-    return render_template("new_deck.html") # show the form to create a new deck
+    if request.method == "POST":
+        name = request.form.get("name", "").strip()
+        if not name:
+            flash("Deck name is required.")
+            return redirect(url_for("new_deck"))
+ 
+        conn = get_db_connection()
+        cursor = conn.execute("INSERT INTO decks (name) VALUES (?)", (name,)) 
+        deck_id = cursor.lastrowid
+    
+        questions = request.form.getlist("questions[]")
+        answers = request.form.getlist("answers[]")
+        added = insert_cards(conn, deck_id, questions, answers)
+ 
+        conn.commit()
+        conn.close()
+ 
+        if added:
+            flash(f"Deck created with {added} card{'s' if added != 1 else ''}!")
+        else:
+            flash("Deck created!")
+        return redirect(url_for("view_deck", deck_id=deck_id))
+ 
+    return render_template("new_deck.html")   # show the form to create a new deck 
 
 
 # Route to view a specific deck and its cards
