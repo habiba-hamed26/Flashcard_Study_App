@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Add Cards — {{ deck.name }}{% endblock %}
+
+{% block content %}
+    <h1>Add Cards to "{{ deck.name }}"</h1>
+    <p class="page-subtitle">Add one card or several at once — they'll all be saved together.</p>
+
+    <form method="POST" class="deck-form">
+        <div id="card-rows">
+            <div class="card-row">
+                <div class="field-group">
+                    <label>Question</label>
+                    <textarea name="questions[]" rows="2" placeholder="Question" autofocus></textarea>
+                </div>
+                <div class="field-group">
+                    <label>Answer</label>
+                    <textarea name="answers[]" rows="2" placeholder="Answer"></textarea>
+                </div>
+                <button type="button" class="btn-remove-row" onclick="removeCardRow(this)" title="Remove this card">✕</button>
+            </div>
+        </div>
+
+        <button type="button" class="btn btn-secondary" onclick="addCardRow()">+ Add Another Card</button>
+        <button type="submit" class="btn btn-primary btn-large">Save Cards</button>
+    </form>
+
+    <a class="back-link" href="{{ url_for('view_deck', deck_id=deck.id) }}">&larr; Back to deck</a>
+
+    <script>
+        function addCardRow() {
+            const container = document.getElementById('card-rows');
+            const template = container.querySelector('.card-row');
+            const row = template.cloneNode(true);
+            row.querySelectorAll('textarea').forEach(t => t.value = '');
+            container.appendChild(row);
+            row.querySelector('textarea').focus();
+        }
+
+        function removeCardRow(button) {
+            const container = document.getElementById('card-rows');
+            const row = button.closest('.card-row');
+            if (container.children.length > 1) {
+                row.remove();
+            } else {
+                row.querySelectorAll('textarea').forEach(t => t.value = '');
+            }
+        }
+    </script>
+{% endblock %}

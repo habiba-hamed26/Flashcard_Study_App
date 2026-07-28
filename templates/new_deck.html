@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}New Deck — BrainFlip{% endblock %}
+
+{% block content %}
+    <h1>Create a New Deck</h1>
+    <p class="page-subtitle">Name your deck, then add as many cards as you like — or skip the cards and add them later.</p>
+
+    <form method="POST" class="deck-form">
+        <div class="field-group">
+            <label for="name">Deck name</label>
+            <input type="text" id="name" name="name" placeholder="e.g. Spanish Vocabulary" required autofocus>
+        </div>
+
+        <div class="cards-section">
+            <div class="cards-section-header">
+                <h2>Cards <span class="optional-tag">(optional)</span></h2>
+            </div>
+
+            <div id="card-rows">
+                <div class="card-row">
+                    <div class="field-group">
+                        <label>Question</label>
+                        <textarea name="questions[]" rows="2" placeholder="e.g. What is the capital of France?"></textarea>
+                    </div>
+                    <div class="field-group">
+                        <label>Answer</label>
+                        <textarea name="answers[]" rows="2" placeholder="e.g. Paris"></textarea>
+                    </div>
+                    <button type="button" class="btn-remove-row" onclick="removeCardRow(this)" title="Remove this card">✕</button>
+                </div>
+            </div>
+
+            <button type="button" class="btn btn-secondary" onclick="addCardRow()">+ Add Another Card</button>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-large">Create Deck</button>
+    </form>
+
+    <a class="back-link" href="{{ url_for('index') }}">&larr; Back to decks</a>
+
+    <script>
+        function addCardRow() {
+            const container = document.getElementById('card-rows');
+            const template = container.querySelector('.card-row');
+            const row = template.cloneNode(true);
+            row.querySelectorAll('textarea').forEach(t => t.value = '');
+            container.appendChild(row);
+        }
+
+        function removeCardRow(button) {
+            const container = document.getElementById('card-rows');
+            const row = button.closest('.card-row');
+            if (container.children.length > 1) {
+                row.remove();
+            } else {
+                row.querySelectorAll('textarea').forEach(t => t.value = '');
+            }
+        }
+    </script>
+{% endblock %}
