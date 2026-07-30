@@ -1,16 +1,26 @@
 import sqlite3
 from flask import Flask, flash, render_template, request, redirect, url_for, abort
-
+import os
 app = Flask(__name__)
 app.secret_key = 'my-flashcard-app-2026'
  
- 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATABASE = os.path.join(BASE_DIR, "flashcard_database.db")
+
+
+def initialize_database():
+    if not os.path.exists(DATABASE):
+        import init_database
+
+
+         
 def get_db_connection():
-    conn = sqlite3.connect('flashcard_database.db')
+    conn = sqlite3.connect(DATABASE)
     conn.execute('PRAGMA foreign_keys = ON')   # Enable foreign key constraints
     conn.row_factory = sqlite3.Row             # Set row factory to return rows as dictionaries
     return conn
- 
+
+initialize_database() 
 
 # Home page route which displays all decks
 @app.route("/")
